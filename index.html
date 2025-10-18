@@ -227,34 +227,34 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                <div data-doc-title="CHƯƠNG TRÌNH HỘI NGHỊ" data-doc-url="pdf/ChuongTrinh" class="menu-card document-card">
+                <div data-doc-title="CHƯƠNG TRÌNH HỘI NGHỊ" data-doc-url="pdf/ChuongTrinh.pdf" class="menu-card document-card">
                     <i class="fas fa-calendar-alt menu-icon"></i>
                     CHƯƠNG TRÌNH HỘI NGHỊ
                 </div>
-                <div data-doc-title="QUY CHẾ HỘI NGHỊ" data-doc-url="pdf/QuyChe" class="menu-card document-card">
+                <div data-doc-title="QUY CHẾ HỘI NGHỊ" data-doc-url="pdf/QuyChe.pdf" class="menu-card document-card">
                     <i class="fas fa-balance-scale-right menu-icon"></i>
                     QUY CHẾ HỘI NGHỊ
                 </div>
 
-                <div data-doc-title="DỰ THẢO BÁO CÁO KẾT QUẢ HOẠT ĐỘNG" data-doc-url="pdf/BaoCao" class="menu-card document-card">
+                <div data-doc-title="DỰ THẢO BÁO CÁO KẾT QUẢ HOẠT ĐỘNG" data-doc-url="pdf/BaoCao.pdf" class="menu-card document-card">
                     <i class="fas fa-file-alt menu-icon"></i>
                     DỰ THẢO BÁO CÁO KẾT QUẢ HOẠT ĐỘNG
                 </div>
-                <div data-doc-title="DỰ THẢO PHƯƠNG HƯỚNG" data-doc-url="pdf/PhuongHuong" class="menu-card document-card">
+                <div data-doc-title="DỰ THẢO PHƯƠNG HƯỚNG" data-doc-url="pdf/PhuongHuong.pdf" class="menu-card document-card">
                     <i class="fas fa-compass menu-icon"></i>
                     DỰ THẢO PHƯƠNG HƯỚNG
                 </div>
 
-                <div data-doc-title="DỰ THẢO BÁO CÁO GÓP Ý" data-doc-url="pdf/GopY" class="menu-card document-card">
+                <div data-doc-title="DỰ THẢO BÁO CÁO GÓP Ý" data-doc-url="pdf/GopY.pdf" class="menu-card document-card">
                     <i class="fas fa-comments menu-icon"></i>
                     DỰ THẢO BÁO CÁO GÓP Ý
                 </div>
-                <div data-doc-title="PHỤ LỤC HỆ THỐNG CHỈ TIÊU" data-doc-url="pdf/ChiTieu" class="menu-card document-card">
+                <div data-doc-title="PHỤ LỤC HỆ THỐNG CHỈ TIÊU" data-doc-url="pdf/ChiTieu.pdf" class="menu-card document-card">
                     <i class="fas fa-chart-line menu-icon"></i>
                     PHỤ LỤC HỆ THỐNG CHỈ TIÊU
                 </div>
 
-                <div data-doc-title="PHỤ LỤC GỢI Ý THẢO LUẬN" data-doc-url="pdf/ThaoLuan" class="menu-card document-card col-span-1 md:col-span-2 max-w-sm mx-auto">
+                <div data-doc-title="PHỤ LỤC GỢI Ý THẢO LUẬN" data-doc-url="pdf/ThaoLuan.pdf" class="menu-card document-card col-span-1 md:col-span-2 max-w-sm mx-auto">
                     <i class="fas fa-lightbulb menu-icon"></i>
                     PHỤ LỤC GỢI Ý THẢO LUẬN
                 </div>
@@ -299,7 +299,7 @@
         const pdfViewer = document.getElementById('pdfViewer');
         const backButtonSmall = document.getElementById('backButtonSmall');
         
-        // --- HÀM XÂY DỰNG ĐƯỜNG DẪN TUYỆT ĐỐI CHO TÀI NGUYÊN (FINAL FIX) ---
+        // --- HÀM XÂY DỰNG ĐƯỜNG DẪN TUYỆT ĐỐI CHO TÀI NGUYÊN ---
         function buildAbsolutePath(relativePath) {
             // Lấy URL cơ sở (ví dụ: https://user.github.io/repo/)
             const base = window.location.origin + window.location.pathname;
@@ -355,14 +355,14 @@
                 // Hiển thị Lỗi Tải Tệp
                 console.error("Lỗi tải PDF:", error);
                 
-                // *** CHÚ Ý: ĐÃ SỬA LỖI TRONG THÔNG BÁO LỖI để KHÔNG có đuôi .PDF ***
+                // THÔNG BÁO LỖI ĐÃ ĐƯỢC ĐỒNG BỘ VỚI TÊN FILE CÓ ĐUÔI .pdf
                 const errorHtml = `
                     <div class="h-full flex flex-col items-center justify-center bg-gray-50 p-8 text-center">
                         <i class="fas fa-exclamation-triangle text-red-500 text-6xl mb-4"></i>
                         <h3 class="text-xl font-bold text-red-700 mb-2">LỖI TẢI TÀI LIỆU: TỆP KHÔNG TÌM THẤY</h3>
-                        <p class="text-gray-600 mb-4">Không thể tải tệp (**${relativePath.replace('pdf/', '')}**). 
+                        <p class="text-gray-600 mb-4">Không thể tải tệp (**${relativePath}**). 
                         <br>Lỗi: ${error.message}<br>
-                        **VUI LÒNG KIỂM TRA LẠI:** Tên thư mục (pdf, assets) và tên tệp (ví dụ: **QuyChe**, chữ cái đầu viết hoa, KHÔNG CÓ ĐUÔI) có khớp với GitHub không?</p>
+                        **VUI LÒNG KIỂM TRA LẠI:** Tên tệp **${relativePath}** có khớp hoàn toàn (kể cả chữ hoa/thường) với tệp trên GitHub không?</p>
                         <button onclick="goBackToMenu()" class="bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 hover:bg-red-700 shadow-xl">
                             Trở về Menu
                         </button>
