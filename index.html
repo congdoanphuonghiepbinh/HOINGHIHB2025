@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hội Nghị Công Đoàn - Tài liệu trực tuyến</title>
+    <!-- Load Tailwind CSS CDN for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Font Awesome for icons -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    
+    <!-- FIX: PDF.js Viewer URL -->
+    <script>
+        // Sử dụng bản Viewer công cộng của Mozilla để hiển thị PDF ổn định
+        const PDFJS_VIEWER_URL = "https://mozilla.github.io/pdf.js/web/viewer.html?file=";
+    </script>
+
+    <style>
+        :root {
+            --primary-blue: #0056b3; /* Xanh Công Đoàn */
+            --secondary-red: #cc0000; /* Đỏ tương tác */
+            --soft-yellow: #fdfae5; /* Nền vàng nhạt */
+            --text-color: #1a202c;
+            --header-height: 60px; /* Chiều cao cố định cho control top */
+            --footer-height: 0px; /* Bỏ footer */
+        }
+
+        /* ĐIỀU CHỈNH FONT THEO YÊU CẦU: SỬ DỤNG FONT TAHOMA PHỔ BIẾN */
+        body {
+            font-family: 'Tahoma', 'Arial', sans-serif;
+            background-color: var(--soft-yellow);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0;
+            margin: 0;
+            overflow-x: hidden; 
+        }
+
+        /* FIX: ẨN NỘI DUNG CUỘN VÀ CỐ ĐỊNH TRANG KHI ĐANG Ở CHẾ ĐỘ ĐỌC TÀI LIỆU */
+        body.book-active {
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        /* ------------------------------------- */
+        /* MAIN MENU STYLING */
+        /* ------------------------------------- */
+        #mainMenu {
+             display: flex;
+             flex-direction: column;
+             align-items: center;
+             width: 100%;
+             max-width: 900px;
+             padding: 20px 10px;
+             transition: opacity 0.3s ease;
+        }
+        
+        .banner-container {
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 30px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        
+        .banner-image {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover; 
+            border-radius: 16px;
+        }
+
+        .menu-card {
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            font-weight: 600;
+            border-radius: 12px;
+            text-align: center;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            user-select: none; 
+            min-height: 120px; 
+            align-items: center;
+            justify-content: center;
+            line-height: 1.2;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .menu-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .interactive-card {
+            background-color: var(--secondary-red); 
+            border: 2px solid var(--secondary-red);
+            color: white; 
+        }
+        .interactive-card:hover { background-color: #e62e2e; }
+        
+        .document-card {
+            background-color: var(--primary-blue); 
+            color: white; 
+            border: 2px solid var(--primary-blue);
+        }
+        .document-card:hover { background-color: #004a99; }
+        .document-card .menu-icon { color: #d1d5db; }
+        .menu-divider {
+            height: 3px;
+            background-color: var(--secondary-red);
+            margin: 40px auto;
+            width: 50px;
+            border-radius: 2px;
+        }
+
+        /* ------------------------------------- */
+        /* READER STYLING - CHẾ ĐỘ FULL SCREEN */
+        /* ------------------------------------- */
+        #bookReader {
+            /* FIX: Cố định tuyệt đối trên màn hình và ẩn khi không dùng */
+            position: absolute; 
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh; 
+            display: none; 
+            flex-direction: column;
+            align-items: center;
+            background-color: rgba(253, 250, 229, 1); 
+            z-index: 1000; 
+            overflow: hidden; /* Ngăn cuộn */
+            box-sizing: border-box;
+            opacity: 0;
+            transition: opacity 0.3s ease; /* Hiệu ứng chuyển đổi mượt mà */
+        }
+
+        #bookReader.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .book-control-top {
+            height: var(--header-height); 
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 0 10px; 
+            width: 100%;
+            display: flex;
+            justify-content: center; 
+            align-items: center;
+            max-width: 900px;
+            box-sizing: border-box;
+            z-index: 10; 
+            position: relative; 
+        }
+
+        /* FIX: Tiêu đề căn giữa và chiếm không gian */
+        #docTitle {
+            text-align: center;
+            flex-grow: 1; 
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        /* FIX: Tối ưu hóa kích thước Book Container để chiếm không gian chính xác */
+        .book-container {
+            width: 100%; 
+            /* Chiều cao tính toán: 100% viewport - header */
+            height: calc(100vh - var(--header-height)); 
+            position: relative;
+            max-width: 900px;
+            overflow: hidden; 
+        }
+        
+        /* PDF Content */
+        .pdf-page-content {
+            width: 100%;
+            height: 100%;
+        }
+
+        .pdf-page-content iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Ẩn các nút không cần thiết */
+        .book-control-bottom {
+            display: none !important;
+        }
+        
+        /* Nút nhỏ gọn Trở về */
+        .back-button-fixed {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            border-radius: 9999px; /* Tròn */
+            position: absolute; /* FIX vị trí */
+            left: 1rem;
+        }
+
+
+    </style>
+</head>
+<body>
+    
+    <!-- MAIN MENU SCREEN -->
+    <div id="mainMenu" class="w-full max-w-4xl px-4 flex flex-col items-center">
+        <div class="banner-container">
+            <!-- Banner Image -->
+            <img id="bannerImage" src="" alt="Banner Hội Nghị Đại Biểu Công Đoàn Phường Hiệp Bình" class="banner-image">
+        </div>
+
+        <div class="menu-grid w-full">
+            
+            <!-- PHÂN NHÓM 1: CHỨC NĂNG TƯƠNG TÁC -->
+            <h3 class="text-2xl font-bold mb-6 text-center text-gray-700 uppercase tracking-wider">CHỨC NĂNG TƯƠNG TÁC</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <!-- Điểm danh - Nền Đỏ, Chữ TRẮNG -->
+                <a href="https://script.google.com/macros/s/AKfycbz7Mm3kZx45LfNcfURZxbGLZ3hNAligHtJV1cQYq8N3hwcRTl_kF4Qcl4WhMNVOrdTy3A/exec" target="_blank" class="menu-card interactive-card text-white">
+                    <i class="fas fa-user-check menu-icon text-white"></i>
+                    <span class="text-xl font-extrabold">ĐIỂM DANH THAM DỰ</span>
+                    <span class="text-sm mt-1 font-normal opacity-90">Truy cập link Điểm danh</span>
+                </a>
+                
+                <!-- Biểu quyết - Nền Đỏ, Chữ VÀNG -->
+                <a href="https://forms.gle/y6KZJWgarXy16ogN8" target="_blank" class="menu-card interactive-card text-yellow-300">
+                    <i class="fas fa-poll-h menu-icon text-yellow-300"></i>
+                    <span class="text-xl font-extrabold">BIỂU QUYẾT HỆ THỐNG CHỈ TIÊU</span>
+                    <span class="text-sm mt-1 font-normal opacity-90">Truy cập Google Form</span>
+                </a>
+            </div>
+
+            <div class="menu-divider"></div>
+
+            <!-- PHÂN NHÓM 2: TÀI LIỆU HỘI NGHỊ - Nền XANH CÔNG ĐOÀN, Chữ TRẮNG -->
+            <h3 class="text-2xl font-bold mb-6 text-center text-gray-700 uppercase tracking-wider">TÀI LIỆU HỘI NGHỊ</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- Hàng 1 -->
+                <div data-doc-title="CHƯƠNG TRÌNH HỘI NGHỊ" data-doc-url="pdf/CHUONGTRINH.PDF" class="menu-card document-card">
+                    <i class="fas fa-calendar-alt menu-icon"></i>
+                    CHƯƠNG TRÌNH HỘI NGHỊ
+                </div>
+                <div data-doc-title="QUY CHẾ HỘI NGHỊ" data-doc-url="pdf/QUYCHE.PDF" class="menu-card document-card">
+                    <i class="fas fa-balance-scale-right menu-icon"></i>
+                    QUY CHẾ HỘI NGHỊ
+                </div>
+
+                <!-- Hàng 2 -->
+                <div data-doc-title="DỰ THẢO BÁO CÁO KẾT QUẢ HOẠT ĐỘNG" data-doc-url="pdf/BAOCAO.PDF" class="menu-card document-card">
+                    <i class="fas fa-file-alt menu-icon"></i>
+                    DỰ THẢO BÁO CÁO KẾT QUẢ HOẠT ĐỘNG
+                </div>
+                <div data-doc-title="DỰ THẢO PHƯƠNG HƯỚNG" data-doc-url="pdf/PHUONGHUONG.PDF" class="menu-card document-card">
+                    <i class="fas fa-compass menu-icon"></i>
+                    DỰ THẢO PHƯƠNG HƯỚNG
+                </div>
+
+                <!-- Hàng 3 -->
+                <div data-doc-title="DỰ THẢO BÁO CÁO GÓP Ý" data-doc-url="pdf/GOPY.PDF" class="menu-card document-card">
+                    <i class="fas fa-comments menu-icon"></i>
+                    DỰ THẢO BÁO CÁO GÓP Ý
+                </div>
+                <div data-doc-title="PHỤ LỤC HỆ THỐNG CHỈ TIÊU" data-doc-url="pdf/CHITIEU.PDF" class="menu-card document-card">
+                    <i class="fas fa-chart-line menu-icon"></i>
+                    PHỤ LỤC HỆ THỐNG CHỈ TIÊU
+                </div>
+
+                <!-- Hàng 4 -->
+                <div data-doc-title="PHỤ LỤC GỢI Ý THẢO LUẬN" data-doc-url="pdf/THAOLUAN.PDF" class="menu-card document-card col-span-1 md:col-span-2 max-w-sm mx-auto">
+                    <i class="fas fa-lightbulb menu-icon"></i>
+                    PHỤ LỤC GỢI Ý THẢO LUẬN
+                </div>
+
+            </div>
+        </div>
+
+        <footer class="mt-12 text-gray-500 text-sm w-full text-center" id="mainMenuFooter">
+            © Công Đoàn Phường Hiệp Bình - Nhiệm kỳ 2025-2030
+        </footer>
+    </div>
+    
+    <!-- BOOK READER SCREEN (Hidden by default) -->
+    <div id="bookReader" class="w-full max-w-4xl px-4 flex-col items-center hidden">
+        
+        <!-- CONTROL TOP (Tiêu đề và Nút Trở về) -->
+        <div class="book-control-top">
+            <!-- Nút Trở về nhỏ gọn -->
+            <button id="backButtonSmall" class="back-button-fixed bg-red-600 text-white transition duration-300 hover:bg-red-700 shadow-md">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            
+            <h2 id="docTitle" class="text-xl font-extrabold text-red-700 text-center flex-1 mx-16 truncate">TÊN TÀI LIỆU</h2>
+        </div>
+
+        <!-- Sách 3D thực tế (Bây giờ là Trình xem PDF full màn hình) -->
+        <div class="book-container">
+            
+            <div id="pageContent" class="pdf-page-content">
+                <!-- Sẽ nhúng PDF.js Viewer vào đây -->
+                <iframe id="pdfViewer" src="about:blank" sandbox="allow-scripts allow-same-origin allow-popups allow-pointer-lock allow-downloads" referrerpolicy="no-referrer"></iframe>
+            </div>
+            
+        </div>
+        
+        <!-- CONTROL BOTTOM (Đã bị loại bỏ) -->
+        <div class="book-control-bottom"></div>
+    </div>
+
+    <script>
+        // --- CHỨC NĂNG TỰ ĐỘNG XÁC ĐỊNH BASE_PATH CHO GITHUB PAGES (Tối ưu nhất) ---
+        function getBasePath() {
+            const hostname = window.location.hostname;
+            const pathname = window.location.pathname;
+
+            if (hostname.endsWith('github.io')) {
+                const pathParts = pathname.split('/').filter(p => p.length > 0);
+                const repoName = pathParts[0]; 
+                
+                // Trả về đường dẫn tuyệt đối đầy đủ: "https://<user>.github.io/<repo>/"
+                return `https://${hostname}/${repoName}/`;
+            } else {
+                 // Trả về đường dẫn tuyệt đối của thư mục hiện tại (ví dụ: localhost)
+                 return window.location.protocol + '//' + window.location.host + '/';
+            }
+        }
+
+        const BASE_PATH = getBasePath();
+
+        // Khởi tạo các biến DOM
+        const mainMenu = document.getElementById('mainMenu');
+        const mainMenuFooter = document.getElementById('mainMenuFooter');
+        const bookReader = document.getElementById('bookReader');
+        const docTitle = document.getElementById('docTitle');
+        const menuItems = document.querySelectorAll('.document-card'); 
+        const bannerImage = document.getElementById('bannerImage');
+        const pdfViewer = document.getElementById('pdfViewer');
+        const backButtonSmall = document.getElementById('backButtonSmall');
+        
+        // --- XỬ LÝ BANNER ---
+        function loadBanner() {
+            const fullBannerPath = BASE_PATH + "assets/Picture1.png";
+            bannerImage.src = fullBannerPath;
+
+            bannerImage.onerror = function() {
+                this.src = BASE_PATH + "assets/Picture1.png";
+                this.onerror = null; 
+            }
+        }
+
+        // --- HÀM HIỂN THỊ PDF ỔN ĐỊNH ---
+        
+        // Hàm tải và hiển thị PDF (Sử dụng PDF.js Viewer)
+        async function loadAndShowPDF(relativePath, title) {
+            
+            docTitle.textContent = "Đang tải tài liệu...";
+            mainMenu.style.display = 'none';
+            // Thêm class active để kích hoạt transition và hiển thị full screen
+            document.body.classList.add('book-active');
+            bookReader.classList.add('active');
+            
+            // Xây dựng URL tệp PDF an toàn (Sử dụng encodeURIComponent)
+            const cleanedRelativePath = relativePath.startsWith('/') ? relativePath.substring(1) : relativePath;
+            
+            // Tên file đã được định dạng CHỮ HOA KHÔNG DẤU trong data-doc-url.
+            const fullResourceUrl = BASE_PATH + cleanedRelativePath;
+            const encodedFileUrl = encodeURIComponent(fullResourceUrl);
+
+            try {
+                // Kiểm tra tệp có tồn tại không trước khi nhúng (giúp debug tốt hơn)
+                const checkResponse = await fetch(fullResourceUrl, { method: 'HEAD' });
+                if (!checkResponse.ok) {
+                     // Nếu lỗi 404/403, báo lỗi chi tiết
+                     throw new Error(`Mã lỗi: ${checkResponse.status}. Vui lòng kiểm tra tên tệp.`);
+                }
+
+                // Sử dụng PDF.js Viewer (Web Viewer)
+                const viewerUrl = PDFJS_VIEWER_URL + encodedFileUrl;
+                
+                // 3. Cập nhật nội dung và tiêu đề
+                docTitle.textContent = title;
+                pdfViewer.src = viewerUrl; 
+
+            } catch (error) {
+                // Lỗi này xảy ra khi tệp PDF không tồn tại hoặc bị hỏng/lỗi ký tự
+                console.error("Lỗi tải PDF:", error);
+                
+                const errorHtml = `
+                    <div class="h-full flex flex-col items-center justify-center bg-gray-50 p-8 text-center">
+                        <i class="fas fa-exclamation-triangle text-red-500 text-6xl mb-4"></i>
+                        <h3 class="text-xl font-bold text-red-700 mb-2">LỖI TẢI TÀI LIỆU: TỆP KHÔNG TÌM THẤY</h3>
+                        <p class="text-gray-600 mb-4">Không thể tải tệp (**${relativePath.replace('pdf/', '')}**). Lỗi: ${error.message} <br> 
+                        **VUI LÒNG KIỂM TRA:** Tệp này có tồn tại và được đặt trong thư mục **pdf/** trên GitHub không?</p>
+                        <button onclick="goBackToMenu()" class="bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 hover:bg-red-700 shadow-xl">
+                            Trở về Menu
+                        </button>
+                    </div>
+                `;
+                pdfViewer.srcdoc = errorHtml;
+                docTitle.textContent = title + " (LỖI)";
+            }
+        }
+
+        // Xử lý nút Trở về Menu Chính
+        function goBackToMenu() {
+            // Hiệu ứng chuyển đổi mượt mà
+            bookReader.classList.remove('active'); 
+            document.body.classList.remove('book-active');
+
+            setTimeout(() => {
+                bookReader.style.display = 'none';
+                mainMenu.style.display = 'flex';
+                mainMenuFooter.style.display = 'block';
+                pdfViewer.src = 'about:blank';
+                pdfViewer.srcdoc = ''; 
+            }, 300);
+        }
+
+        // Gắn sự kiện cho các menu tài liệu
+        menuItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const relativePath = this.getAttribute('data-doc-url');
+                const title = this.getAttribute('data-doc-title');
+                loadAndShowPDF(relativePath, title);
+            });
+        });
+
+        // Gắn sự kiện nút trở về nhỏ
+        backButtonSmall.addEventListener('click', goBackToMenu);
+
+        // Khởi động
+        window.onload = loadBanner;
+
+    </script>
+</body>
+</html>
