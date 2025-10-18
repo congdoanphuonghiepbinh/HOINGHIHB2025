@@ -14,14 +14,13 @@
 
     <style>
         :root {
-            --primary-blue: #0056b3; /* Xanh Công Đoàn */
-            --secondary-red: #cc0000; /* Đỏ tương tác */
-            --soft-yellow: #fdfae5; /* Nền vàng nhạt */
+            --primary-blue: #0056b3;
+            --secondary-red: #cc0000;
+            --soft-yellow: #fdfae5;
             --text-color: #1a202c;
             --header-height: 60px;
         }
 
-        /* ĐIỀU CHỈNH FONT VÀ NỀN */
         body {
             font-family: 'Tahoma', 'Arial', sans-serif;
             background-color: var(--soft-yellow);
@@ -40,9 +39,6 @@
             height: 100vh;
         }
         
-        /* ------------------------------------- */
-        /* MAIN MENU STYLING */
-        /* ------------------------------------- */
         #mainMenu {
              display: flex;
              flex-direction: column;
@@ -121,9 +117,7 @@
             border-radius: 2px;
         }
 
-        /* ------------------------------------- */
-        /* READER STYLING - CHẾ ĐỘ FULL SCREEN */
-        /* ------------------------------------- */
+        /* READER STYLING */
         #bookReader {
             position: absolute; 
             top: 0;
@@ -196,7 +190,7 @@
             align-items: center;
             justify-content: center;
             padding: 0.5rem;
-            border-radius: 9999px; /* Tròn */
+            border-radius: 9999px;
             position: absolute;
             left: 1rem;
         }
@@ -367,7 +361,7 @@
                         <h3 class="text-xl font-bold text-red-700 mb-2">LỖI TẢI TÀI LIỆU: TỆP KHÔNG TÌM THẤY</h3>
                         <p class="text-gray-600 mb-4">Không thể tải tệp (**${relativePath.replace('pdf/', '')}**). 
                         <br>Lỗi: ${error.message}<br>
-                        **VUI LÒNG KIỂM TRA LẠI:** Tên thư mục (pdf, assets) và tên tệp (chữ cái đầu viết hoa, KHÔNG CÓ ĐUÔI) có khớp với GitHub không?</p>
+                        **VUI LÒNG KIỂM TRA LẠI:** Tên thư mục (pdf, assets) và tên tệp (ví dụ: **QuyChe**, chữ cái đầu viết hoa, KHÔNG CÓ ĐUÔI) có khớp với GitHub không?</p>
                         <button onclick="goBackToMenu()" class="bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 hover:bg-red-700 shadow-xl">
                             Trở về Menu
                         </button>
