@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hội Nghị Công Đoàn - Tài liệu trực tuyến</title>
+    <title>Hội Nghị Công Đoàn Phường Hiệp Bình | Tài liệu trực tuyến</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
     
@@ -18,11 +18,10 @@
             --secondary-red: #cc0000; /* Đỏ tương tác */
             --soft-yellow: #fdfae5; /* Nền vàng nhạt */
             --text-color: #1a202c;
-            --header-height: 60px; /* Chiều cao cố định cho control top */
-            --footer-height: 0px; /* Bỏ footer */
+            --header-height: 60px;
         }
 
-        /* ĐIỀU CHỈNH FONT THEO YÊU CẦU: SỬ DỤNG FONT TAHOMA PHỔ BIẾN */
+        /* ĐIỀU CHỈNH FONT VÀ NỀN */
         body {
             font-family: 'Tahoma', 'Arial', sans-serif;
             background-color: var(--soft-yellow);
@@ -36,7 +35,6 @@
             overflow-x: hidden; 
         }
 
-        /* FIX: ẨN NỘI DUNG CUỘN VÀ CỐ ĐỊNH TRANG KHI ĐANG Ở CHẾ ĐỘ ĐỌC TÀI LIỆU */
         body.book-active {
             overflow: hidden;
             height: 100vh;
@@ -88,8 +86,6 @@
             cursor: pointer;
             user-select: none; 
             min-height: 120px; 
-            align-items: center;
-            justify-content: center;
             line-height: 1.2;
         }
 
@@ -129,7 +125,6 @@
         /* READER STYLING - CHẾ ĐỘ FULL SCREEN */
         /* ------------------------------------- */
         #bookReader {
-            /* FIX: Cố định tuyệt đối trên màn hình và ẩn khi không dùng */
             position: absolute; 
             top: 0;
             left: 0;
@@ -140,10 +135,10 @@
             align-items: center;
             background-color: rgba(253, 250, 229, 1); 
             z-index: 1000; 
-            overflow: hidden; /* Ngăn cuộn */
+            overflow: hidden;
             box-sizing: border-box;
             opacity: 0;
-            transition: opacity 0.3s ease; /* Hiệu ứng chuyển đổi mượt mà */
+            transition: opacity 0.3s ease;
         }
 
         #bookReader.active {
@@ -166,7 +161,6 @@
             position: relative; 
         }
 
-        /* FIX: Tiêu đề căn giữa và chiếm không gian */
         #docTitle {
             text-align: center;
             flex-grow: 1; 
@@ -174,17 +168,14 @@
             font-weight: 700;
         }
 
-        /* FIX: Tối ưu hóa kích thước Book Container để chiếm không gian chính xác */
         .book-container {
             width: 100%; 
-            /* Chiều cao tính toán: 100% viewport - header */
             height: calc(100vh - var(--header-height)); 
             position: relative;
             max-width: 900px;
             overflow: hidden; 
         }
         
-        /* PDF Content */
         .pdf-page-content {
             width: 100%;
             height: 100%;
@@ -196,23 +187,19 @@
             border: none;
         }
 
-        /* Ẩn các nút không cần thiết */
         .book-control-bottom {
             display: none !important;
         }
         
-        /* Nút nhỏ gọn Trở về */
         .back-button-fixed {
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 0.5rem;
             border-radius: 9999px; /* Tròn */
-            position: absolute; /* FIX vị trí */
+            position: absolute;
             left: 1rem;
         }
-
-
     </style>
 </head>
 <body>
@@ -308,9 +295,6 @@
     </div>
 
     <script>
-        // *** ĐÃ LOẠI BỎ TOÀN BỘ HÀM getBasePath VÀ BASE_PATH PHỨC TẠP ***
-        // *** TẤT CẢ ĐƯỜNG DẪN ĐỀU SỬ DỤNG ĐƯỜNG DẪN TƯƠNG ĐỐI ('pdf/QUYCHE.PDF') ***
-
         // Khởi tạo các biến DOM
         const mainMenu = document.getElementById('mainMenu');
         const mainMenuFooter = document.getElementById('mainMenuFooter');
@@ -321,52 +305,60 @@
         const pdfViewer = document.getElementById('pdfViewer');
         const backButtonSmall = document.getElementById('backButtonSmall');
         
+        // --- HÀM XÂY DỰNG ĐƯỜNG DẪN TUYỆT ĐỐI CHO TÀI NGUYÊN (FINAL FIX) ---
+        function buildAbsolutePath(relativePath) {
+            // Lấy URL cơ sở (ví dụ: https://user.github.io/repo/)
+            const base = window.location.origin + window.location.pathname;
+            
+            // Lấy đường dẫn thư mục gốc repo
+            const baseUrl = base.endsWith('/') ? base : base.substring(0, base.lastIndexOf('/') + 1);
+
+            // Nối đường dẫn tuyệt đối
+            return baseUrl + relativePath;
+        }
+
         // --- XỬ LÝ BANNER ---
         function loadBanner() {
-            // SỬ DỤNG ĐƯỜNG DẪN TƯƠNG ĐỐI: assets/Picture1.png
-            const fullBannerPath = "assets/Picture1.png"; 
+            // SỬ DỤNG HÀM MỚI CHO BANNER
+            const fullBannerPath = buildAbsolutePath("assets/Picture1.png"); 
             bannerImage.src = fullBannerPath;
 
-            // Nếu ảnh lỗi (chẳng hạn tên file khác), thử lại 
+            // Nếu ảnh lỗi, thử lại
             bannerImage.onerror = function() {
-                // Bạn có thể thay đổi đường dẫn này nếu tên file banner của bạn khác
-                this.src = "assets/Picture1.png"; 
+                this.src = buildAbsolutePath("assets/Picture1.png"); 
                 this.onerror = null; 
             }
         }
 
         // --- HÀM HIỂN THỊ PDF ỔN ĐỊNH ---
-        
-        // Hàm tải và hiển thị PDF (Sử dụng PDF.js Viewer)
         async function loadAndShowPDF(relativePath, title) {
             
             docTitle.textContent = "Đang tải tài liệu...";
             mainMenu.style.display = 'none';
-            // Thêm class active để kích hoạt transition và hiển thị full screen
             document.body.classList.add('book-active');
             bookReader.classList.add('active');
             
-            // SỬ DỤNG ĐƯỜNG DẪN TƯƠNG ĐỐI ĐÃ CUNG CẤP TỪ data-doc-url
-            const fullResourceUrl = relativePath;
+            // XÂY DỰNG ĐƯỜNG DẪN TUYỆT ĐỐI CHO TÀI NGUYÊN
+            const fullResourceUrl = buildAbsolutePath(relativePath);
             const encodedFileUrl = encodeURIComponent(fullResourceUrl);
 
             try {
-                // Kiểm tra tệp có tồn tại không trước khi nhúng (giúp debug tốt hơn)
-                // LƯU Ý: Đối với GitHub Pages, kiểm tra HEAD có thể bị chặn CORS. 
-                // Ta dùng API thay vì fetch trực tiếp
-                
-                const viewerUrl = "https://mozilla.github.io/pdf.js/web/viewer.html?file=" + encodeURIComponent(window.location.origin + window.location.pathname.replace('index.html', '') + fullResourceUrl);
-                
-                // KIỂM TRA LẠI: Nếu lỗi 404, có thể do viewerUrl bị sai.
-                // Thử cách an toàn nhất: chỉ gửi đường dẫn tương đối
+                // Kiểm tra tệp có tồn tại (HEAD request)
+                const checkResponse = await fetch(fullResourceUrl, { method: 'HEAD' });
+                if (!checkResponse.ok) {
+                     // Nếu lỗi 404, hiển thị thông báo chi tiết
+                     throw new Error(`Mã lỗi: ${checkResponse.status}. Vui lòng kiểm tra tên tệp.`);
+                }
+
+                // Xây dựng URL cuối cùng cho PDF Viewer (Yêu cầu đường dẫn tuyệt đối)
                 const finalViewerUrl = PDFJS_VIEWER_URL + encodedFileUrl;
 
-                // 3. Cập nhật nội dung và tiêu đề
+                // Cập nhật nội dung và tiêu đề
                 docTitle.textContent = title;
                 pdfViewer.src = finalViewerUrl; 
 
             } catch (error) {
-                // Lỗi này xảy ra khi tệp PDF không tồn tại hoặc bị hỏng/lỗi ký tự
+                // Hiển thị Lỗi Tải Tệp
                 console.error("Lỗi tải PDF:", error);
                 
                 const errorHtml = `
@@ -374,7 +366,8 @@
                         <i class="fas fa-exclamation-triangle text-red-500 text-6xl mb-4"></i>
                         <h3 class="text-xl font-bold text-red-700 mb-2">LỖI TẢI TÀI LIỆU: TỆP KHÔNG TÌM THẤY</h3>
                         <p class="text-gray-600 mb-4">Không thể tải tệp (**${relativePath.replace('pdf/', '')}**). 
-                        <br>Lỗi: Vui lòng kiểm tra lại: Tên thư mục **pdf** và tên tệp **${relativePath.replace('pdf/', '')}** (chữ hoa/thường).</p>
+                        <br>Lỗi: ${error.message}<br>
+                        **VUI LÒNG KIỂM TRA LẠI:** Tên thư mục (pdf, assets) và tên tệp (chữ hoa/thường) có khớp với GitHub không?</p>
                         <button onclick="goBackToMenu()" class="bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 hover:bg-red-700 shadow-xl">
                             Trở về Menu
                         </button>
@@ -387,7 +380,6 @@
 
         // Xử lý nút Trở về Menu Chính
         function goBackToMenu() {
-            // Hiệu ứng chuyển đổi mượt mà
             bookReader.classList.remove('active'); 
             document.body.classList.remove('book-active');
 
@@ -414,7 +406,6 @@
 
         // Khởi động
         window.onload = loadBanner;
-
     </script>
 </body>
 </html>
